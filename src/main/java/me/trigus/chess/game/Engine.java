@@ -1,0 +1,113 @@
+package me.trigus.chess.game;
+
+import me.trigus.chess.App;
+
+public class Engine {
+
+    private final GameState gameState;
+
+    public Engine() {
+        gameState = new GameState();
+    }
+
+    public void init() {
+        gameState.init();
+    }
+
+    public boolean move(String input) {
+        //e4-a2
+        if (input.length() != 5 || input.charAt(2) != '-') {
+            App.getConsole().warning("invalid move input, use '/help' for more information.");
+            return false;
+        }
+
+        input = input.toUpperCase();
+        App.getConsole().debug("working with move " + input);
+
+        String[] parts = input.split("-");
+        char srcCol = parts[0].charAt(0);
+        char srcRow = parts[0].charAt(1);
+        char dstCol = parts[1].charAt(0);
+        char dstRow = parts[1].charAt(1);
+
+        if (srcCol < 'A' || srcCol > 'H') {
+            App.getConsole().warning("invalid column '" + srcCol + "'");
+            return false;
+        } else if (srcRow < '1' || srcRow > '8') {
+            App.getConsole().warning("invalid row '" + srcRow + "'");
+            return false;
+        } else if (dstCol < 'A' || dstCol > 'H') {
+            App.getConsole().warning("invalid column '" + dstCol + "'");
+            return false;
+        } else if (dstRow < '1' || dstRow > '8') {
+            App.getConsole().warning("invalid row '" + dstRow + "'");
+            return false;
+        }
+
+
+        srcCol -= 'A';
+        dstCol -= 'A';
+        srcRow -= '1';
+        dstRow -= '1';
+        App.getConsole().debug("srcCol: " + (int)srcCol + ", srcRow: " + (int)srcRow +
+                ", dstCol: " + (int)dstCol + ", dstRow: " + (int)dstRow);
+
+        Piece piece = gameState.getPiece(srcRow, srcCol);
+        if (piece == null) {
+            App.getConsole().warning("no piece at source square");
+            return false;
+        } else if (piece.isWhite() && !gameState.isWhiteTurn()) {
+            App.getConsole().warning("it's black's turn");
+            return false;
+        } else if (!piece.isWhite() && gameState.isWhiteTurn()) {
+            App.getConsole().warning("it's white's turn");
+            return false;
+        }
+
+        Piece target =  gameState.getPiece(dstRow, dstCol);
+        if (target != null && target.isWhite() == piece.isWhite()) {
+            App.getConsole().warning("can't capture own pieces");
+            return false;
+        }
+
+        // no errors, move can be made
+        gameState.getPieces()[dstRow][dstCol] = piece;
+        gameState.getPieces()[srcRow][srcCol] = null;
+        piece.setHasMoved(true);
+
+        gameState.toggleWhiteTurn();
+
+        return true;
+    }
+
+    public void drawBoard() {
+        for (int i = 0; i < 17; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (i % 2 == 0) {
+                    if (j == 8) IO.print("+");
+                    else IO.print ("+  -  ");
+                } else {
+                    if (j == 8) IO.print("|");
+
+                    else { // draw pieces
+                        Piece current = gameState.getPiece(7 - i / 2, j);
+                        String s;
+                        if (current == null) {
+                            s = "|     ";
+                        } else {
+                            s = "| " +
+                                    (current.isWhite() ? "<" : ">") +
+                                    current +
+                                    (current.isWhite() ? ">" : "<") +
+                                    " ";
+                        }
+                        IO.print (s);
+                    }
+                }
+
+
+            }
+            IO.println();
+        }
+    }
+}
