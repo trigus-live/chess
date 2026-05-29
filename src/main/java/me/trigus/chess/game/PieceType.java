@@ -20,6 +20,8 @@ public enum PieceType {
     private final long RANK_LAST = 0xFF00000000000000L;
     private final long FILE_FIRST = 0x0101010101010101L;
     private final long FILE_LAST = 0x8080808080808080L;
+    private final long DIAGONAL_A1 = 0x8040201008040201L;
+    private final long DIAGONAL_H1 = 0x0102040810204080L;
 
     public final char symbol;
     public final boolean isWhite;
@@ -55,10 +57,13 @@ public enum PieceType {
                 if ((position & FILE_FIRST) != 0) topLeft = null;
                 if ((position & FILE_LAST) != 0) topRight = null;
 
+                moves |= position << 8;
+
                 if (topLeft != null && topLeft.getType().isWhite != isWhite) moves |= position << 7;
                 if (topRight != null && topRight.getType().isWhite != isWhite) moves |= position << 9;
 
-                moves |= position << 8;
+
+
                 break;
 
             case PAWN_B:
@@ -80,15 +85,21 @@ public enum PieceType {
 
             case KING:
             case KING_B:
-            case QUEEN:
-            case QUEEN_B:
+            case QUEEN, QUEEN_B:
+                moves |= PieceType.ROOK.getRawMoves(position, gameState);
+                moves |= PieceType.BISHOP.getRawMoves(position, gameState);
+
             case ROOK, ROOK_B:
                 moves |= RANK_FIRST << (currentRank - 1) * 8;
                 moves |= FILE_FIRST << currentFile - 1;
-            case BISHOP:
-            case BISHOP_B:
-            case KNIGHT:
-            case KNIGHT_B:
+
+            case BISHOP, BISHOP_B:
+                // THIS DOES NOT WORK ! ! !
+                moves |= DIAGONAL_A1 << (currentFile - currentRank);
+                moves |= DIAGONAL_H1 << (8 - (currentFile - currentRank));
+
+            case KNIGHT, KNIGHT_B:
+
         }
         return moves;
     }
