@@ -1,6 +1,7 @@
 package me.trigus.chess.game;
 
 import me.trigus.chess.App;
+import me.trigus.chess.util.Util;
 
 public class Engine {
 
@@ -52,27 +53,37 @@ public class Engine {
         App.getConsole().debug("srcCol: " + (int)srcCol + ", srcRow: " + (int)srcRow +
                 ", dstCol: " + (int)dstCol + ", dstRow: " + (int)dstRow);
 
-        Piece piece = gameState.getPiece(srcRow, srcCol);
+        Piece piece = gameState.getPiece(Util.coordsToPosition(srcRow, srcCol));
         if (piece == null) {
             App.getConsole().warning("no piece at source square");
             return false;
-        } else if (piece.isWhite() && !gameState.isWhiteTurn()) {
+        } else if (piece.getType().isWhite && !gameState.isWhiteTurn()) {
             App.getConsole().warning("it's black's turn");
             return false;
-        } else if (!piece.isWhite() && gameState.isWhiteTurn()) {
+        } else if (!piece.getType().isWhite && gameState.isWhiteTurn()) {
             App.getConsole().warning("it's white's turn");
             return false;
         }
 
-        Piece target =  gameState.getPiece(dstRow, dstCol);
-        if (target != null && target.isWhite() == piece.isWhite()) {
+        Piece target =  gameState.getPiece(Util.coordsToPosition(dstRow, dstCol));
+        if (target != null && target.getType().isWhite == piece.getType().isWhite) {
             App.getConsole().warning("can't capture own pieces");
             return false;
         }
 
+        long rawMoves = piece.getType().getRawMoves(Util.coordsToPosition(srcRow, srcCol));
+        App.getConsole().debug("rawMoves: " + rawMoves);
+
+        if ((rawMoves & Util.coordsToPosition(dstRow, dstCol)) == 0L) {
+            App.getConsole().warning("illegal move");
+            return false;
+        }
+
         // no errors, move can be made
-        gameState.getPieces()[dstRow][dstCol] = piece;
-        gameState.getPieces()[srcRow][srcCol] = null;
+        if (target != null) {
+            gameState.removePiece(target);
+        }
+        piece.setPosition(Util.coordsToPosition(dstRow, dstCol));
         piece.setHasMoved(true);
 
         gameState.toggleWhiteTurn();
@@ -90,15 +101,15 @@ public class Engine {
                     if (j == 8) IO.print("|");
 
                     else { // draw pieces
-                        Piece current = gameState.getPiece(7 - i / 2, j);
+                        Piece current = gameState.getPiece(Util.coordsToPosition(7 - i / 2, j));
                         String s;
                         if (current == null) {
                             s = "|     ";
                         } else {
                             s = "| " +
-                                    (current.isWhite() ? "<" : ">") +
+                                    (current.getType().isWhite ? "<" : ">") +
                                     current +
-                                    (current.isWhite() ? ">" : "<") +
+                                    (current.getType().isWhite ? ">" : "<") +
                                     " ";
                         }
                         IO.print (s);

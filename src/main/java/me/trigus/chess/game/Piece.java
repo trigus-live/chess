@@ -2,14 +2,18 @@ package me.trigus.chess.game;
 
 public class Piece {
 
-    private final boolean isWhite;
     private final PieceType type;
+    private long position = 0L;
 
     private boolean hasMoved = false;
 
-    public Piece(PieceType type, boolean isWhite) {
+    public Piece(PieceType type, long position) {
         this.type = type;
-        this.isWhite = isWhite;
+        this.position = position;
+    }
+
+    public Piece(PieceType type) {
+        this (type, 0L);
     }
 
     @Override
@@ -17,8 +21,12 @@ public class Piece {
         return type.symbol + "";
     }
 
-    public boolean isWhite() {
-        return isWhite;
+    public long getPosition() {
+        return position;
+    }
+
+    public void setPosition(long position) {
+        this.position = position;
     }
 
     public PieceType getType() {
