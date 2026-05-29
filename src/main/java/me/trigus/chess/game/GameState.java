@@ -5,7 +5,6 @@ import java.util.List;
 
 public class GameState {
 
-    //private final Piece[][] pieces = new Piece[8][8]; // ROW COL
     private final List<Piece> piecesList = new ArrayList<>();
 
     private boolean whiteTurn = true;
@@ -20,6 +19,24 @@ public class GameState {
 
     public void toggleWhiteTurn() {
         this.whiteTurn = !this.whiteTurn;
+    }
+
+    public long getBitboardWhitePieces () {
+        long board = 0x0L;
+        for (Piece piece : piecesList) {
+            if (piece.getType().isWhite) board = board | piece.getPosition ();
+        }
+
+        return board;
+    }
+
+    public long getBitboardBlackPieces () {
+        long board = 0x0L;
+        for (Piece piece : piecesList) {
+            if (!piece.getType ().isWhite) board = board | piece.getPosition ();
+        }
+
+        return board;
     }
 
     public void addPiece(Piece piece) {
@@ -51,15 +68,11 @@ public class GameState {
         return null;
     }
 
-    /*public Piece getPiece(int row, int col) {
-        return pieces[row][col];
-    }*/
 
-    /*public Piece[][] getPieces() {
-        return pieces;
-    }*/
 
     public void init () {
+        piecesList.clear();
+
         piecesList.add(new Piece(PieceType.ROOK, 0x1L));
         piecesList.add(new Piece(PieceType.KNIGHT, 0x2L));
         piecesList.add(new Piece(PieceType.BISHOP, 0x4L));
@@ -76,7 +89,7 @@ public class GameState {
         piecesList.add(new Piece (PieceType.KING_B, 0x1000000000000000L));
         piecesList.add(new Piece (PieceType.BISHOP_B, 0x2000000000000000L));
         piecesList.add(new Piece (PieceType.KNIGHT_B, 0x4000000000000000L));
-        piecesList.add(new Piece (PieceType.ROOK, 0x8000000000000000L));
+        piecesList.add(new Piece (PieceType.ROOK_B, 0x8000000000000000L));
 
         long start = 0x100L;
         for (int i = 0; i < 8; i++) {
@@ -85,5 +98,7 @@ public class GameState {
             piecesList.add(new Piece (PieceType.PAWN_B, black));
             start = start << 1;
         }
+
+        whiteTurn = true;
     }
 }

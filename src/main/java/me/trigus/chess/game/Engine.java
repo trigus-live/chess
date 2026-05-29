@@ -71,7 +71,7 @@ public class Engine {
             return false;
         }
 
-        long rawMoves = piece.getType().getRawMoves(Util.coordsToPosition(srcRow, srcCol));
+        long rawMoves = piece.getType().getRawMoves(Util.coordsToPosition(srcRow, srcCol), gameState);
         App.getConsole().debug("rawMoves: " + rawMoves);
 
         if ((rawMoves & Util.coordsToPosition(dstRow, dstCol)) == 0L) {
