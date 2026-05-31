@@ -22,6 +22,7 @@ public enum PieceType {
     private final long FILE_LAST = 0x8080808080808080L;
     private final long DIAGONAL_A1 = 0x8040201008040201L;
     private final long DIAGONAL_H1 = 0x0102040810204080L;
+    private final long KNIGHT_C3 = 0x0000000A1100110AL;
 
     public final char symbol;
     public final boolean isWhite;
@@ -62,7 +63,7 @@ public enum PieceType {
                 if (topLeft != null && topLeft.getType().isWhite != isWhite) moves |= position << 7;
                 if (topRight != null && topRight.getType().isWhite != isWhite) moves |= position << 9;
 
-
+                //TODO en-passant
 
                 break;
 
@@ -81,10 +82,35 @@ public enum PieceType {
                 if (bottomRight != null && bottomRight.getType().isWhite != isWhite) moves |= position >> 7;
 
                 moves |= position >> 8;
+
+                //TODO en-passant
+
                 break;
 
-            case KING:
-            case KING_B:
+            case KING, KING_B:
+                if ((position & RANK_FIRST) == 0) {
+                    moves |= position >>> 7;
+                    moves |= position >>> 8;
+                    moves |= position >>> 9;
+                }
+                if ((position & RANK_LAST) == 0) {
+                    moves |= position << 7;
+                    moves |= position << 8;
+                    moves |= position << 9;
+                }
+                if ((position & FILE_FIRST) == 0) {
+                    moves |= position << 7;
+                    moves |= position >>> 1;
+                    moves |= position >>> 9;
+                }
+                if ((position & FILE_LAST) == 0) {
+                    moves |= position >>> 7;
+                    moves |= position << 1;
+                    moves |= position << 9;
+                }
+                // TODO Castle
+                break;
+
             case QUEEN, QUEEN_B:
                 moves |= PieceType.ROOK.getRawMoves(position, gameState);
                 moves |= PieceType.BISHOP.getRawMoves(position, gameState);
@@ -136,7 +162,26 @@ public enum PieceType {
                 break;
 
             case KNIGHT, KNIGHT_B:
+                // knight mask is based on c3
+                int offsetRank = currentRank - 2;
+                int offsetFile = currentFile - 2;
 
+                int offset = offsetFile + offsetRank * 8;
+                long preMask;
+
+                // put knight mask on current position
+                if (offset < 0) preMask = KNIGHT_C3 >>> -offset;
+                else preMask = KNIGHT_C3 << offset;
+
+                // cut legal moves, wrapped around the board
+                if (offsetFile < 0) {
+                    preMask &= ~(FILE_LAST | FILE_LAST >>> 1); // cutting files G and H
+                } else if (offsetFile > 3) {
+                    preMask &= ~(FILE_FIRST | FILE_FIRST << 1); // cutting files A and B
+                }
+
+                moves |= preMask;
+                break;
         }
         return (moves &= ~position);
     }
