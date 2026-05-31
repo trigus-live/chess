@@ -35,8 +35,8 @@ public enum PieceType {
         long moves = 0;
 
         int index = (int) (Math.log(position) / Math.log(2));
-        int currentRank = index / 8 + 1;
-        int currentFile = index % 8 + 1;
+        int currentRank = index / 8;
+        int currentFile = index % 8;
         if (position < 0) {
             currentRank = 8;
             currentFile = 8;
@@ -88,19 +88,56 @@ public enum PieceType {
             case QUEEN, QUEEN_B:
                 moves |= PieceType.ROOK.getRawMoves(position, gameState);
                 moves |= PieceType.BISHOP.getRawMoves(position, gameState);
+                break;
 
             case ROOK, ROOK_B:
-                moves |= RANK_FIRST << (currentRank - 1) * 8;
-                moves |= FILE_FIRST << currentFile - 1;
+                moves |= RANK_FIRST << currentRank * 8;
+                moves |= FILE_FIRST << currentFile;
+                break;
 
             case BISHOP, BISHOP_B:
-                // THIS DOES NOT WORK ! ! !
-                moves |= DIAGONAL_A1 << (currentFile - currentRank);
-                moves |= DIAGONAL_H1 << (8 - (currentFile - currentRank));
+
+                int leftMove = currentFile - currentRank;
+                int bottomMove = 8 * ((currentFile + currentRank) - 7);
+
+                long preDiagonalA1;
+                long preDiagonalH1;
+
+                // put the diagonals on the current position
+                // you can't really shift by negative values, so if/else-if is required
+                if (leftMove < 0) preDiagonalA1 = DIAGONAL_A1 >>> -leftMove;
+                else preDiagonalA1 = DIAGONAL_A1 << leftMove;
+                if (bottomMove < 0)  preDiagonalH1 = DIAGONAL_H1 >>> -bottomMove;
+                else preDiagonalH1 = DIAGONAL_H1 << bottomMove;
+
+                // cut the diagonals that wrapped around the board
+                if (leftMove < 0) {
+                    for (int i = 0; i < -leftMove; i++) {
+                        preDiagonalA1 &= ~(FILE_LAST >>> i);
+                    }
+                } else {
+                    for (int i = 0; i < leftMove; i++) {
+                        preDiagonalA1 &= ~(FILE_FIRST << i);
+                    }
+                }
+                if (bottomMove < 0) {
+                    for (int i = 0; i < -bottomMove; i++) {
+                        preDiagonalH1 &= ~(FILE_LAST >>> (i * 8));
+                    }
+                } else {
+                    for (int i = 0; i < bottomMove; i++) {
+                        preDiagonalH1 &= ~(FILE_FIRST << (i * 8));
+                    }
+                }
+
+                // moves are ready
+                moves |= preDiagonalA1;
+                moves |= preDiagonalH1;
+                break;
 
             case KNIGHT, KNIGHT_B:
 
         }
-        return moves;
+        return (moves &= ~position);
     }
 }

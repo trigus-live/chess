@@ -15,6 +15,10 @@ public class Engine {
         gameState.init();
     }
 
+    public GameState getGameState() {
+        return gameState;
+    }
+
     public boolean move(String input) {
         //e4-a2
         if (input.length() != 5 || input.charAt(2) != '-') {
@@ -22,36 +26,19 @@ public class Engine {
             return false;
         }
 
-        input = input.toUpperCase();
         App.getConsole().debug("working with move " + input);
 
         String[] parts = input.split("-");
-        char srcCol = parts[0].charAt(0);
-        char srcRow = parts[0].charAt(1);
-        char dstCol = parts[1].charAt(0);
-        char dstRow = parts[1].charAt(1);
+        int[] src = Util.gridCoordsToRowColBase0(parts[0]);
+        int[] dst = Util.gridCoordsToRowColBase0(parts[1]);
 
-        if (srcCol < 'A' || srcCol > 'H') {
-            App.getConsole().warning("invalid column '" + srcCol + "'");
-            return false;
-        } else if (srcRow < '1' || srcRow > '8') {
-            App.getConsole().warning("invalid row '" + srcRow + "'");
-            return false;
-        } else if (dstCol < 'A' || dstCol > 'H') {
-            App.getConsole().warning("invalid column '" + dstCol + "'");
-            return false;
-        } else if (dstRow < '1' || dstRow > '8') {
-            App.getConsole().warning("invalid row '" + dstRow + "'");
-            return false;
-        }
+        int srcRow = src[0];
+        int srcCol = src[1];
+        int dstRow = dst[0];
+        int dstCol = dst[1];
 
-
-        srcCol -= 'A';
-        dstCol -= 'A';
-        srcRow -= '1';
-        dstRow -= '1';
-        App.getConsole().debug("srcCol: " + (int)srcCol + ", srcRow: " + (int)srcRow +
-                ", dstCol: " + (int)dstCol + ", dstRow: " + (int)dstRow);
+        App.getConsole().debug("srcRow: " + src[0] + ", srcCol: " + src[1] +
+                ", dstRow: " + dst[0] + ", dstCol: " + dst[1]);
 
         Piece piece = gameState.getPiece(Util.coordsToPosition(srcRow, srcCol));
         if (piece == null) {
@@ -91,7 +78,7 @@ public class Engine {
         return true;
     }
 
-    public void drawBoard() {
+    public void drawBoard(long highlightMask) {
         for (int i = 0; i < 17; i++) {
             for (int j = 0; j < 9; j++) {
                 if (i % 2 == 0) {
@@ -101,18 +88,34 @@ public class Engine {
                     if (j == 8) IO.print("|");
 
                     else { // draw pieces
-                        Piece current = gameState.getPiece(Util.coordsToPosition(7 - i / 2, j));
-                        String s;
-                        if (current == null) {
-                            s = "|     ";
+                        long position = Util.coordsToPosition(7 - i / 2, j);
+                        Piece current = gameState.getPiece(position);
+                        boolean highlight = 0 != (highlightMask & position);
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("|");
+
+                        if (highlight) {
+                            sb.append("[");
                         } else {
-                            s = "| " +
-                                    (current.getType().isWhite ? "<" : ">") +
-                                    current +
-                                    (current.getType().isWhite ? ">" : "<") +
-                                    " ";
+                            sb.append(" ");
                         }
-                        IO.print (s);
+
+                        if (current == null) {
+                            sb.append("   ");
+                        } else {
+                            sb.append(current.getType().isWhite ? "<" : ">");
+                            sb.append(current);
+                            sb.append(current.getType().isWhite ? ">" : "<");
+                        }
+
+                        if (highlight) {
+                            sb.append("]");
+                        } else {
+                            sb.append(" ");
+                        }
+
+                        IO.print (sb.toString());
                     }
                 }
 

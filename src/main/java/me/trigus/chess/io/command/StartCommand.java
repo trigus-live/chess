@@ -10,7 +10,7 @@ public class StartCommand extends AbstractCommand {
     @Override
     public boolean run(String[] args) {
         App.getEngine().init();
-        App.getEngine().drawBoard();
+        App.getEngine().drawBoard(0L);
         return true;
     }
 

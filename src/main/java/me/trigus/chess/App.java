@@ -30,7 +30,7 @@ public class App {
                     }
                 } else {
                     boolean success = engine.move(input);
-                    if (success) engine.drawBoard();
+                    if (success) engine.drawBoard(0L);
                 }
             }
         }  catch (Exception e) {
