@@ -1,20 +1,21 @@
 package me.trigus.chess.game;
 
 import me.trigus.chess.App;
+import me.trigus.chess.util.Util;
 
 public enum PieceType {
     PAWN ('P', true),
-    PAWN_B ('P', false),
+    PAWN_B ('p', false),
     KING ('K', true),
-    KING_B ('K', false),
+    KING_B ('k', false),
     QUEEN ('Q', true),
-    QUEEN_B ('Q', false),
+    QUEEN_B ('q', false),
     ROOK ('R', true),
-    ROOK_B ('R', false),
+    ROOK_B ('r', false),
     BISHOP ('B', true),
-    BISHOP_B ('B', false),
+    BISHOP_B ('b', false),
     KNIGHT ('N', true),
-    KNIGHT_B ('N', false);
+    KNIGHT_B ('n', false);
 
     private final long RANK_FIRST = 0x00000000000000FFL;
     private final long RANK_LAST = 0xFF00000000000000L;
@@ -32,16 +33,30 @@ public enum PieceType {
         this.isWhite = isWhite;
     }
 
+    public static PieceType fromSymbol (char symbol) {
+        return switch (symbol) {
+            case 'P' -> PAWN;
+            case 'p' -> PAWN_B;
+            case 'K' -> KING;
+            case 'k' -> KING_B;
+            case 'Q' -> QUEEN;
+            case 'q' -> QUEEN_B;
+            case 'R' -> ROOK;
+            case 'r' -> ROOK_B;
+            case 'B' -> BISHOP;
+            case 'b' -> BISHOP_B;
+            case 'N' -> KNIGHT;
+            case 'n' -> KNIGHT_B;
+            default -> null;
+        };
+    }
+
     public long getRawMoves (long position, GameState gameState) {
         long moves = 0;
 
-        int index = (int) (Math.log(position) / Math.log(2));
-        int currentRank = index / 8;
-        int currentFile = index % 8;
-        if (position < 0) {
-            currentRank = 8;
-            currentFile = 8;
-        }
+        int[] indices = Util.positionToIndexCoords(position);
+        int currentRank = indices[0];
+        int currentFile = indices[1];
 
         App.getConsole().debug("working with position/rank/file: " + position + " " + currentRank + " " + currentFile);
 
@@ -52,38 +67,41 @@ public enum PieceType {
                 if ((position & RANK_FIRST << 8) != 0L) {
                     moves |= position << 16;
                 }
-                Piece topLeft = gameState.getPiece(position << 7);
-                Piece topRight = gameState.getPiece(position << 9);
 
-                if ((position & FILE_FIRST) != 0) topLeft = null;
-                if ((position & FILE_LAST) != 0) topRight = null;
+                long topLeftPosition = position << 7;
+                long topRightPosition = position << 9;
+
+                if ((position & FILE_FIRST) != 0) topLeftPosition = 0L;
+                if ((position & FILE_LAST) != 0) topRightPosition = 0L;
+
+                Piece topLeft = gameState.getPiece(topLeftPosition);
+                Piece topRight = gameState.getPiece(topRightPosition);
 
                 moves |= position << 8;
 
-                if (topLeft != null && topLeft.getType().isWhite != isWhite) moves |= position << 7;
-                if (topRight != null && topRight.getType().isWhite != isWhite) moves |= position << 9;
-
-                //TODO en-passant
+                if (gameState.getEnPassantPosition() == topLeftPosition || topLeft != null && topLeft.getType().isWhite != isWhite) moves |= topLeftPosition;
+                if (gameState.getEnPassantPosition() == topRightPosition || topRight != null && topRight.getType().isWhite != isWhite) moves |= topRightPosition;
 
                 break;
 
             case PAWN_B:
                 if ((position & RANK_FIRST << (8 * 6)) != 0) {
-                    moves |= position >> 16;
+                    moves |= position >>> 16;
                 }
 
-                Piece bottomLeft = gameState.getPiece(position >> 9);
-                Piece bottomRight = gameState.getPiece(position >> 7);
+                long bottomLeftPosition = position >>> 9;
+                long bottomRightPosition = position >>> 7;
 
-                if ((position & FILE_FIRST) != 0) bottomLeft = null;
-                if ((position & FILE_LAST) != 0) bottomRight = null;
+                if ((position & FILE_FIRST) != 0) bottomLeftPosition = 0L;
+                if ((position & FILE_LAST) != 0) bottomRightPosition = 0L;
 
-                if (bottomLeft != null && bottomLeft.getType().isWhite != isWhite) moves |= position >> 9;
-                if (bottomRight != null && bottomRight.getType().isWhite != isWhite) moves |= position >> 7;
+                Piece bottomLeft = gameState.getPiece(bottomLeftPosition);
+                Piece bottomRight = gameState.getPiece(bottomRightPosition);
+
+                if (gameState.getEnPassantPosition() == bottomLeftPosition || bottomLeft != null && bottomLeft.getType().isWhite != isWhite) moves |= position >> 9;
+                if (gameState.getEnPassantPosition() == bottomRightPosition || bottomRight != null && bottomRight.getType().isWhite != isWhite) moves |= position >> 7;
 
                 moves |= position >> 8;
-
-                //TODO en-passant
 
                 break;
 
@@ -108,7 +126,29 @@ public enum PieceType {
                     moves |= position << 1;
                     moves |= position << 9;
                 }
-                // TODO Castle
+
+                if (gameState.isCastleWhiteQueen() && gameState.isTurnWhite()) {
+                    long castleMask = 0xCL;
+                    if ((castleMask & gameState.getBitBoardAllPieces()) == 0) {
+                        moves |= position >>> 2;
+                    }
+                } else if (gameState.isCastleWhiteKing() && gameState.isTurnWhite()) {
+                    long castleMask = 0x60L;
+                    if ((castleMask & gameState.getBitBoardAllPieces()) == 0) {
+                        moves |= position << 2;
+                    }
+                } else if (gameState.isCastleBlackQueen() && !gameState.isTurnWhite()) {
+                    long castleMask = 0xC00000000000000L;
+                    if ((castleMask & gameState.getBitBoardAllPieces()) == 0) {
+                        moves |= position >>> 2;
+                    }
+                } else if (gameState.isCastleBlackKing() && !gameState.isTurnWhite()) {
+                    long castleMask = 0x6000000000000000L;
+                    if ((castleMask & gameState.getBitBoardAllPieces()) == 0) {
+                        moves |= position << 2;
+                    }
+                }
+
                 break;
 
             case QUEEN, QUEEN_B:

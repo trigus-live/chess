@@ -5,8 +5,6 @@ public class Piece {
     private final PieceType type;
     private long position = 0L;
 
-    private boolean hasMoved = false;
-
     public Piece(PieceType type, long position) {
         this.type = type;
         this.position = position;
@@ -31,13 +29,5 @@ public class Piece {
 
     public PieceType getType() {
         return type;
-    }
-
-    public boolean isHasMoved() {
-        return hasMoved;
-    }
-
-    public void setHasMoved(boolean hasMoved) {
-        this.hasMoved = hasMoved;
     }
 }

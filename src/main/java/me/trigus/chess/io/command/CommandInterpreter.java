@@ -12,6 +12,7 @@ public class CommandInterpreter {
             new HelpCommand("help"),
             new DebugCommand("debug"),
             new DrawCommand("draw"),
+            new FenCommand("fen")
     };
 
 
