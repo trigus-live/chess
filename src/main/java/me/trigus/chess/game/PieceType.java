@@ -70,7 +70,7 @@ public enum PieceType {
                 }
                 moves |= position << 8;
 
-                moves |= moves & ~gameState.getBitBoardAllPieces();
+                moves &= ~gameState.getBitBoardAllPieces();
 
                 long topLeftPosition = position << 7;
                 long topRightPosition = position << 9;
@@ -95,7 +95,7 @@ public enum PieceType {
                 }
                 moves |= position >> 8;
 
-                moves |= moves & ~gameState.getBitBoardAllPieces();
+                moves &= ~gameState.getBitBoardAllPieces();
 
                 long bottomLeftPosition = position >>> 9;
                 long bottomRightPosition = position >>> 7;
