@@ -68,6 +68,9 @@ public enum PieceType {
                     if (gameState.getPiece (position << 8) == null)
                         moves |= position << 16;
                 }
+                moves |= position << 8;
+
+                moves |= moves & ~gameState.getBitBoardAllPieces();
 
                 long topLeftPosition = position << 7;
                 long topRightPosition = position << 9;
@@ -78,7 +81,7 @@ public enum PieceType {
                 Piece topLeft = gameState.getPiece(topLeftPosition);
                 Piece topRight = gameState.getPiece(topRightPosition);
 
-                moves |= position << 8;
+
 
                 if (gameState.getEnPassantPosition() == topLeftPosition || topLeft != null && topLeft.getType().isWhite != isWhite) moves |= topLeftPosition;
                 if (gameState.getEnPassantPosition() == topRightPosition || topRight != null && topRight.getType().isWhite != isWhite) moves |= topRightPosition;
@@ -90,6 +93,9 @@ public enum PieceType {
                     if (gameState.getPiece (position >>> 8) == null)
                         moves |= position >>> 16;
                 }
+                moves |= position >> 8;
+
+                moves |= moves & ~gameState.getBitBoardAllPieces();
 
                 long bottomLeftPosition = position >>> 9;
                 long bottomRightPosition = position >>> 7;
@@ -103,7 +109,7 @@ public enum PieceType {
                 if (gameState.getEnPassantPosition() == bottomLeftPosition || bottomLeft != null && bottomLeft.getType().isWhite != isWhite) moves |= position >> 9;
                 if (gameState.getEnPassantPosition() == bottomRightPosition || bottomRight != null && bottomRight.getType().isWhite != isWhite) moves |= position >> 7;
 
-                moves |= position >> 8;
+
 
                 break;
 
