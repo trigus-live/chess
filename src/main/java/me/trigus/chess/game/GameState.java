@@ -12,7 +12,7 @@ public class GameState {
 
     private final List<Piece> piecesList = new ArrayList<>();
 
-    private boolean turnWhite;;
+    private boolean turnWhite;
 
     private boolean castleWhiteKing;
     private boolean castleWhiteQueen;
