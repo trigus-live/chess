@@ -17,14 +17,6 @@ public enum PieceType {
     KNIGHT ('N', true),
     KNIGHT_B ('n', false);
 
-    private final long RANK_FIRST = 0x00000000000000FFL;
-    private final long RANK_LAST = 0xFF00000000000000L;
-    private final long FILE_FIRST = 0x0101010101010101L;
-    private final long FILE_LAST = 0x8080808080808080L;
-    private final long DIAGONAL_A1 = 0x8040201008040201L;
-    private final long DIAGONAL_H1 = 0x0102040810204080L;
-    private final long KNIGHT_C3 = 0x0000000A1100110AL;
-
     public final char symbol;
     public final boolean isWhite;
 
@@ -52,6 +44,14 @@ public enum PieceType {
     }
 
     public long getRawMoves (long position, GameState gameState) {
+        final long RANK_FIRST = 0x00000000000000FFL;
+        final long RANK_LAST = 0xFF00000000000000L;
+        final long FILE_FIRST = 0x0101010101010101L;
+        final long FILE_LAST = 0x8080808080808080L;
+        final long DIAGONAL_A1 = 0x8040201008040201L;
+        final long DIAGONAL_H1 = 0x0102040810204080L;
+        final long KNIGHT_C3 = 0x0000000A1100110AL;
+
         long moves = 0;
 
         int[] indices = Util.positionToIndexCoords(position);
