@@ -28,6 +28,20 @@ public class App {
                     if (!success) {
                         console.error("command execution failed!");
                     }
+
+                } else if (input.length () == 2) {
+                    long position = Util.gridCoordsToPosition (input);
+                    if (position == 0) {
+                        console.warning ("invalid square");
+                    } else {
+                        Piece piece = engine.getGameState ().getPiece (position);
+                        if (piece == null) {
+                            console.warning ("no piece at square");
+                        } else {
+                            engine.drawBoard (piece.getType ().getRawMoves (position, engine.getGameState ()));
+                        }
+                    }
+
                 } else {
                     boolean success = engine.move(input);
                     if (success) engine.drawBoard(0L);

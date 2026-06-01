@@ -5,7 +5,7 @@ import me.trigus.chess.App;
 public class HelpCommand extends AbstractCommand {
 
     private final String[][] HELP_TOPICS = new String[][] {
-            {"play", "enter your move in the form 'e2-e4' (or 'E2-E4') to move a piece from E2 to E4."}
+            {"play", "enter your move in the form 'e2-e4' (or 'E2-E4') to move a piece from E2 to E4.\nEnter a single square to display legal moves."}
     };
 
     public HelpCommand(String name) {
