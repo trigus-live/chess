@@ -3,7 +3,7 @@ package me.trigus.chess.game;
 public class Piece {
 
     private final PieceType type;
-    private long position = 0L;
+    private long position;
 
     public Piece(PieceType type, long position) {
         this.type = type;
