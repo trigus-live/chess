@@ -1,8 +1,10 @@
 package me.trigus.chess;
 
 import me.trigus.chess.game.Engine;
+import me.trigus.chess.game.Piece;
 import me.trigus.chess.io.command.CommandInterpreter;
 import me.trigus.chess.io.Console;
+import me.trigus.chess.util.Util;
 
 public class App {
 
