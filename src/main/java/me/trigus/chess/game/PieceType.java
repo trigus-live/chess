@@ -65,7 +65,8 @@ public enum PieceType {
         switch (this) {
             case PAWN:
                 if ((position & RANK_FIRST << 8) != 0L) {
-                    moves |= position << 16;
+                    if (gameState.getPiece (position << 8) == null)
+                        moves |= position << 16;
                 }
 
                 long topLeftPosition = position << 7;
@@ -86,7 +87,8 @@ public enum PieceType {
 
             case PAWN_B:
                 if ((position & RANK_FIRST << (8 * 6)) != 0) {
-                    moves |= position >>> 16;
+                    if (gameState.getPiece (position >>> 8) == null)
+                        moves |= position >>> 16;
                 }
 
                 long bottomLeftPosition = position >>> 9;
