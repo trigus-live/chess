@@ -79,7 +79,5 @@ public class Util {
 
         return String.valueOf ((char) ('a' + indices[1])) +
                 (char) ('1' + indices[0]);
-
-        return sb;
     }
 }
