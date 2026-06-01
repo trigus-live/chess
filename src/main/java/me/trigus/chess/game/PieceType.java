@@ -223,6 +223,6 @@ public enum PieceType {
                 moves |= preMask;
                 break;
         }
-        return (moves &= ~position);
+        return (moves & ~position);
     }
 }
