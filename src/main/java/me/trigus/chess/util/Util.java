@@ -77,10 +77,9 @@ public class Util {
     public static String positionToGridCoords(long position) {
         int[] indices =  positionToIndexCoords(position);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append((char) ('a' + indices[1]));
-        sb.append((char) ('1' + indices[0]));
+        return String.valueOf ((char) ('a' + indices[1])) +
+                (char) ('1' + indices[0]);
 
-        return sb.toString();
+        return sb;
     }
 }
