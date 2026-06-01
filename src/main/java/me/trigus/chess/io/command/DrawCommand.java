@@ -14,25 +14,23 @@ public class DrawCommand extends AbstractCommand {
         long highlightMask = 0L;
 
         if (args.length > 0) {
-            switch (args[0]) {
+            // show legal moves
+            if (args[0].equals ("lm")) {
+                if (args.length < 2) {
+                    App.getConsole ().warning ("missing argument for lm");
+                    return true;
+                }
 
-                // show legal moves
-                case "lm":
-                    if (args.length < 2) {
-                        App.getConsole().warning("missing argument for lm");
-                        return true;
-                    }
+                String coords = args[1];
+                long position = Util.gridCoordsToPosition (coords);
 
-                    String coords = args[1];
-                    long position = Util.gridCoordsToPosition(coords);
+                Piece piece = App.getEngine ().getGameState ().getPiece (position);
+                if (piece == null) {
+                    App.getConsole ().warning ("no piece at target square");
+                    return true;
+                }
 
-                    Piece piece = App.getEngine().getGameState().getPiece(position);
-                    if (piece == null) {
-                        App.getConsole().warning("no piece at target square");
-                        return true;
-                    }
-
-                    highlightMask = piece.getType().getRawMoves(position, App.getEngine().getGameState());
+                highlightMask = piece.getType ().getRawMoves (position, App.getEngine ().getGameState ());
             }
         }
 
