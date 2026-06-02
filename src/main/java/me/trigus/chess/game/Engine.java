@@ -36,21 +36,21 @@ public class Engine {
         if (piece == null) {
             App.getConsole().warning("no piece at source square");
             return false;
-        } else if (piece.getType().isWhite && !gameState.isTurnWhite()) {
+        } else if (piece.getPieceType().isWhite && !gameState.isTurnWhite()) {
             App.getConsole().warning("it's black's turn");
             return false;
-        } else if (!piece.getType().isWhite && gameState.isTurnWhite()) {
+        } else if (!piece.getPieceType().isWhite && gameState.isTurnWhite()) {
             App.getConsole().warning("it's white's turn");
             return false;
         }
 
         Piece target =  gameState.getPiece(dst);
-        if (target != null && target.getType().isWhite == piece.getType().isWhite) {
+        if (target != null && target.getPieceType().isWhite == piece.getPieceType().isWhite) {
             App.getConsole().warning("can't capture own pieces");
             return false;
         }
 
-        long rawMoves = piece.getType().getRawMoves(src);
+        long rawMoves = piece.getPieceType().getRawMoves(src);
 
         if ((rawMoves & dst) == 0L) {
             App.getConsole().warning("illegal move");
@@ -73,22 +73,22 @@ public class Engine {
         }
 
         // check castle
-        if (piece.getType() == PieceType.KING && src - dst == 2) {
+        if (piece.getPieceType() == PieceType.KING && src - dst == 2) {
             Piece rook = gameState.getPiece(dst >>> 2);
             rook.setPosition(dst << 2);
             gameState.removePiece(rook);
             gameState.addPiece(rook);
-        } else if (piece.getType() == PieceType.KING && src - dst == -2) {
+        } else if (piece.getPieceType() == PieceType.KING && src - dst == -2) {
             Piece rook = gameState.getPiece(dst << 1);
             rook.setPosition(dst >>> 1);
             gameState.removePiece(rook);
             gameState.addPiece(rook);
-        }  else if (piece.getType() == PieceType.KING_B && src - dst == 2) {
+        }  else if (piece.getPieceType() == PieceType.KING_B && src - dst == 2) {
             Piece rook = gameState.getPiece(dst >>> 2);
             rook.setPosition(dst << 2);
             gameState.removePiece(rook);
             gameState.addPiece(rook);
-        }  else if (piece.getType() == PieceType.KING_B && src - dst == -2) {
+        }  else if (piece.getPieceType() == PieceType.KING_B && src - dst == -2) {
             Piece rook = gameState.getPiece(dst << 1);
             rook.setPosition(dst >>> 1);
             gameState.removePiece(rook);
@@ -100,42 +100,42 @@ public class Engine {
         gameState.addPiece(piece);
 
         // update castle-states
-        if ((piece.getType() == PieceType.ROOK_B && (src & 0x0100000000000000L) != 0) || piece.getType() == PieceType.KING_B) {
+        if ((piece.getPieceType() == PieceType.ROOK_B && (src & 0x0100000000000000L) != 0) || piece.getPieceType() == PieceType.KING_B) {
             gameState.setCastleBlackQueen(false);
         }
-        if ((piece.getType() == PieceType.ROOK_B && (src & 0x8000000000000000L) != 0) || piece.getType() == PieceType.KING_B) {
+        if ((piece.getPieceType() == PieceType.ROOK_B && (src & 0x8000000000000000L) != 0) || piece.getPieceType() == PieceType.KING_B) {
             gameState.setCastleBlackKing(false);
         }
-        if ((piece.getType() == PieceType.ROOK && (src & 0x0000000000000001L) != 0) || piece.getType() == PieceType.KING) {
+        if ((piece.getPieceType() == PieceType.ROOK && (src & 0x0000000000000001L) != 0) || piece.getPieceType() == PieceType.KING) {
             gameState.setCastleWhiteQueen(false);
         }
-        if ((piece.getType() == PieceType.ROOK && (src & 0x0000000000000080L) != 0) || piece.getType() == PieceType.KING) {
+        if ((piece.getPieceType() == PieceType.ROOK && (src & 0x0000000000000080L) != 0) || piece.getPieceType() == PieceType.KING) {
             gameState.setCastleWhiteKing(false);
         }
 
 
         // pawn promotion
-        if (piece.getType() == PieceType.PAWN && (dst << 8 == 0)) {
+        if (piece.getPieceType() == PieceType.PAWN && (dst << 8 == 0)) {
             Piece promotion = new Piece(PieceType.QUEEN, piece.getPosition());
             gameState.removePiece(piece);
             gameState.addPiece(promotion);
-        } else if (piece.getType() == PieceType.PAWN_B && (dst >>> 8 == 0)) {
+        } else if (piece.getPieceType() == PieceType.PAWN_B && (dst >>> 8 == 0)) {
             Piece promotion = new Piece(PieceType.QUEEN_B, piece.getPosition());
             gameState.removePiece(piece);
             gameState.addPiece(promotion);
         }
 
         // update en passant position
-        if (piece.getType() == PieceType.PAWN && (dst >>> 16 == src)) {
+        if (piece.getPieceType() == PieceType.PAWN && (dst >>> 16 == src)) {
             gameState.setEnPassantPosition(src << 8);
-        } else if (piece.getType() == PieceType.PAWN_B && (dst << 16 == src)) {
+        } else if (piece.getPieceType() == PieceType.PAWN_B && (dst << 16 == src)) {
             gameState.setEnPassantPosition(src >>> 8);
         } else {
             gameState.setEnPassantPosition(0x0L);
         }
 
         // update half-move rule
-        if (piece.getType() == PieceType.PAWN || piece.getType() == PieceType.PAWN_B || target != null) {
+        if (piece.getPieceType() == PieceType.PAWN || piece.getPieceType() == PieceType.PAWN_B || target != null) {
             gameState.setHalfMoveCount(0);
         } else {
             gameState.incrementHalfMoveCount();
@@ -174,9 +174,9 @@ public class Engine {
                         if (current == null) {
                             sb.append("   ");
                         } else {
-                            sb.append(current.getType().isWhite ? "<" : ">");
+                            sb.append(current.getPieceType().isWhite ? "<" : ">");
                             sb.append(current);
-                            sb.append(current.getType().isWhite ? ">" : "<");
+                            sb.append(current.getPieceType().isWhite ? ">" : "<");
                         }
 
                         if (highlight) {

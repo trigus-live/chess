@@ -29,156 +29,6 @@ public class GameState {
 
     }
 
-    public boolean isTurnWhite() {
-        return turnWhite;
-    }
-
-    public void setTurnWhite(boolean turnWhite) {
-        this.turnWhite = turnWhite;
-    }
-
-    public void toggleTurnWhite () {
-        turnWhite = !turnWhite;
-    }
-
-    public boolean isCastleWhiteKing() {
-        return castleWhiteKing;
-    }
-
-    public void setCastleWhiteKing(boolean castleWhiteKing) {
-        this.castleWhiteKing = castleWhiteKing;
-    }
-
-    public boolean isCastleWhiteQueen() {
-        return castleWhiteQueen;
-    }
-
-    public void setCastleWhiteQueen(boolean castleWhiteQueen) {
-        this.castleWhiteQueen = castleWhiteQueen;
-    }
-
-    public boolean isCastleBlackKing() {
-        return castleBlackKing;
-    }
-
-    public void setCastleBlackKing(boolean castleBlackKing) {
-        this.castleBlackKing = castleBlackKing;
-    }
-
-    public boolean isCastleBlackQueen() {
-        return castleBlackQueen;
-    }
-
-    public void setCastleBlackQueen(boolean castleBlackQueen) {
-        this.castleBlackQueen = castleBlackQueen;
-    }
-
-    public long getEnPassantPosition() {
-        return enPassantPosition;
-    }
-
-    public void setEnPassantPosition(long enPassantPosition) {
-        this.enPassantPosition = enPassantPosition;
-    }
-
-    public int getHalfMoveCount() {
-        return halfMoveCount;
-    }
-
-    public void setHalfMoveCount(int halfMoveCount) {
-        this.halfMoveCount = halfMoveCount;
-    }
-
-    public void incrementHalfMoveCount() {
-        halfMoveCount++;
-    }
-
-    public int getFullMoveCount() {
-        return fullMoveCount;
-    }
-
-    public void setFullMoveCount(int fullMoveCount) {
-        this.fullMoveCount = fullMoveCount;
-    }
-
-    public void incrementFullMoveCount() {
-        fullMoveCount++;
-    }
-
-    public long getBitboardWhitePieces () {
-        long board = 0x0L;
-        for (Piece piece : piecesList) {
-            if (piece.getType().isWhite) board = board | piece.getPosition ();
-        }
-
-        return board;
-    }
-
-    public long getBitboardBlackPieces () {
-        long board = 0x0L;
-        for (Piece piece : piecesList) {
-            if (!piece.getType ().isWhite) board = board | piece.getPosition ();
-        }
-
-        return board;
-    }
-
-    public long getBitBoardAllPieces () {
-        return  getBitboardWhitePieces() | getBitboardBlackPieces();
-    }
-
-    public void addPiece(Piece piece) {
-
-        int[] indices = Util.positionToIndexCoords(piece.getPosition());
-
-        for (int i = 0; i <= piecesList.size(); i++) {
-
-            if (i == piecesList.size()) {
-                piecesList.add(piece);
-                break;
-            }
-
-            long currentPosition = piecesList.get(i).getPosition();
-            int[] currentIndices = Util.positionToIndexCoords(currentPosition);
-
-            if (indices[0] > currentIndices[0]) {
-                piecesList.add(i, piece);
-                break;
-            } else if (indices[0] == currentIndices[0]){
-                if (indices[1] < currentIndices[1]) {
-                    piecesList.add(i, piece);
-                    break;
-                }
-            }
-
-        }
-    }
-
-    public void removePiece(Piece piece) {
-        piecesList.remove(piece);
-    }
-
-    public void removePiece (long position) {
-        int index = -1;
-        for (int i = 0; i < piecesList.size(); i++) {
-            if (piecesList.get(i).getPosition() == position) {
-                index = i;
-            }
-        }
-        if (index != -1) {
-            piecesList.remove(index);
-        }
-    }
-
-    public Piece getPiece (long position) {
-        for (Piece piece : piecesList) {
-            if (piece.getPosition() == position) {
-                return piece;
-            }
-        }
-        return null;
-    }
-
     public void init () {
         loadFen(FEN_START);
     }
@@ -325,5 +175,136 @@ public class GameState {
         sb.append(fullMoveCount);
 
         return sb.toString();
+    }
+
+    public boolean isTurnWhite() {
+        return turnWhite;
+    }
+    public void setTurnWhite(boolean turnWhite) {
+        this.turnWhite = turnWhite;
+    }
+    public void toggleTurnWhite () {
+        turnWhite = !turnWhite;
+    }
+
+    public boolean isCastleWhiteKing() {
+        return castleWhiteKing;
+    }
+    public void setCastleWhiteKing(boolean castleWhiteKing) {
+        this.castleWhiteKing = castleWhiteKing;
+    }
+    public boolean isCastleWhiteQueen() {
+        return castleWhiteQueen;
+    }
+    public void setCastleWhiteQueen(boolean castleWhiteQueen) {
+        this.castleWhiteQueen = castleWhiteQueen;
+    }
+    public boolean isCastleBlackKing() {
+        return castleBlackKing;
+    }
+    public void setCastleBlackKing(boolean castleBlackKing) {
+        this.castleBlackKing = castleBlackKing;
+    }
+    public boolean isCastleBlackQueen() {
+        return castleBlackQueen;
+    }
+    public void setCastleBlackQueen(boolean castleBlackQueen) {
+        this.castleBlackQueen = castleBlackQueen;
+    }
+
+    public long getEnPassantPosition() {
+        return enPassantPosition;
+    }
+    public void setEnPassantPosition(long enPassantPosition) {
+        this.enPassantPosition = enPassantPosition;
+    }
+
+    public int getHalfMoveCount() {
+        return halfMoveCount;
+    }
+    public void setHalfMoveCount(int halfMoveCount) {
+        this.halfMoveCount = halfMoveCount;
+    }
+    public void incrementHalfMoveCount() {
+        halfMoveCount++;
+    }
+    public int getFullMoveCount() {
+        return fullMoveCount;
+    }
+    public void setFullMoveCount(int fullMoveCount) {
+        this.fullMoveCount = fullMoveCount;
+    }
+    public void incrementFullMoveCount() {
+        fullMoveCount++;
+    }
+
+    public long getBitboardWhitePieces () {
+        long board = 0x0L;
+        for (Piece piece : piecesList) {
+            if (piece.getPieceType().isWhite) board = board | piece.getPosition ();
+        }
+
+        return board;
+    }
+    public long getBitboardBlackPieces () {
+        long board = 0x0L;
+        for (Piece piece : piecesList) {
+            if (!piece.getPieceType().isWhite) board = board | piece.getPosition ();
+        }
+
+        return board;
+    }
+    public long getBitBoardAllPieces () {
+        return  getBitboardWhitePieces() | getBitboardBlackPieces();
+    }
+
+
+    public void addPiece(Piece piece) {
+
+        int[] indices = Util.positionToIndexCoords(piece.getPosition());
+
+        for (int i = 0; i <= piecesList.size(); i++) {
+
+            if (i == piecesList.size()) {
+                piecesList.add(piece);
+                break;
+            }
+
+            long currentPosition = piecesList.get(i).getPosition();
+            int[] currentIndices = Util.positionToIndexCoords(currentPosition);
+
+            if (indices[0] > currentIndices[0]) {
+                piecesList.add(i, piece);
+                break;
+            } else if (indices[0] == currentIndices[0]){
+                if (indices[1] < currentIndices[1]) {
+                    piecesList.add(i, piece);
+                    break;
+                }
+            }
+
+        }
+    }
+    public void removePiece(Piece piece) {
+        piecesList.remove(piece);
+    }
+    public void removePiece (long position) {
+        int index = -1;
+        for (int i = 0; i < piecesList.size(); i++) {
+            if (piecesList.get(i).getPosition() == position) {
+                index = i;
+            }
+        }
+        if (index != -1) {
+            piecesList.remove(index);
+        }
+    }
+    public Piece getPiece (long position) {
+        for (Piece piece : piecesList) {
+            if (piece.getPosition() == position) {
+                return piece;
+            }
+        }
+        return null;
     }
 }

@@ -40,7 +40,7 @@ public class App {
                         if (piece == null) {
                             console.warning ("no piece at square");
                         } else {
-                            engine.drawBoard (piece.getType ().getRawMoves (position));
+                            engine.drawBoard (piece.getPieceType().getRawMoves (position));
                         }
                     }
 

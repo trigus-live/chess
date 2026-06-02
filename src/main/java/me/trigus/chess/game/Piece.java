@@ -2,32 +2,29 @@ package me.trigus.chess.game;
 
 public class Piece {
 
-    private final PieceType type;
+    private final PieceType pieceType;
     private long position;
 
-    public Piece(PieceType type, long position) {
-        this.type = type;
+    public Piece(PieceType pieceType, long position) {
+        this.pieceType = pieceType;
         this.position = position;
     }
-
-    public Piece(PieceType type) {
-        this (type, 0L);
-    }
-
-    @Override
-    public String toString() {
-        return type.symbol + "";
+    public Piece(PieceType pieceType) {
+        this (pieceType, 0L);
     }
 
     public long getPosition() {
         return position;
     }
-
     public void setPosition(long position) {
         this.position = position;
     }
+    public PieceType getPieceType() {
+        return pieceType;
+    }
 
-    public PieceType getType() {
-        return type;
+    @Override
+    public String toString() {
+        return pieceType.symbol + "";
     }
 }
