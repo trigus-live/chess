@@ -249,6 +249,16 @@ public class GameState {
     public long getBitmaskAllPieces() {
         return  getBitmaskPieces(true) | getBitmaskPieces(false);
     }
+    public long getBitmaskAttackingSquares (boolean isWhite) {
+        long board = 0x0L;
+        for (Piece piece : piecesList) {
+            if (piece.getPieceType().isWhite == isWhite) {
+                board |= piece.getLegalMoves(this);
+            }
+        }
+
+        return board;
+    }
 
 
     public void addPiece(Piece piece) {
