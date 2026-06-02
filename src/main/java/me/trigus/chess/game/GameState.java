@@ -238,7 +238,7 @@ public class GameState {
         fullMoveCount++;
     }
 
-    public long getBitboardPieces (boolean isWhite) {
+    public long getBitmaskPieces(boolean isWhite) {
         long board = 0x0L;
         for (Piece piece : piecesList) {
             if (piece.getPieceType().isWhite == isWhite) board = board | piece.getPosition ();
@@ -246,8 +246,8 @@ public class GameState {
 
         return board;
     }
-    public long getBitBoardAllPieces () {
-        return  getBitboardPieces(true) | getBitboardPieces(false);
+    public long getBitmaskAllPieces() {
+        return  getBitmaskPieces(true) | getBitmaskPieces(false);
     }
 
 
