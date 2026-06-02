@@ -238,15 +238,7 @@ public class GameState {
         fullMoveCount++;
     }
 
-    public long getBitboardWhitePieces () {
-        long board = 0x0L;
-        for (Piece piece : piecesList) {
-            if (piece.getPieceType().isWhite) board = board | piece.getPosition ();
-        }
-
-        return board;
-    }
-    public long getBitboardBlackPieces () {
+    public long getBitboardPieces (boolean isWhite) {
         long board = 0x0L;
         for (Piece piece : piecesList) {
             if (!piece.getPieceType().isWhite) board = board | piece.getPosition ();
