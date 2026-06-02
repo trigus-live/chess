@@ -50,7 +50,7 @@ public class Engine {
             return false;
         }
 
-        long rawMoves = piece.getType().getRawMoves(src, gameState);
+        long rawMoves = piece.getType().getRawMoves(src);
 
         if ((rawMoves & dst) == 0L) {
             App.getConsole().warning("illegal move");

@@ -43,194 +43,98 @@ public enum PieceType {
         };
     }
 
-    public long getRawMoves (long position, GameState gameState) {
+    /**
+     * Computes legal moves of a piece based on its current position on an empty board.
+     * @param position position of the piece encoded in 64-Bit long
+     * @return all possible next positions of the piece, encoded in 64-Bit long
+     */
+    public long getRawMoves (long position) {
         final long RANK_FIRST = 0x00000000000000FFL;
         final long RANK_LAST = 0xFF00000000000000L;
         final long FILE_FIRST = 0x0101010101010101L;
         final long FILE_LAST = 0x8080808080808080L;
-        final long DIAGONAL_A1 = 0x8040201008040201L;
-        final long DIAGONAL_H1 = 0x0102040810204080L;
-        final long KNIGHT_C3 = 0x0000000A1100110AL;
 
-        long moves = 0;
+        long moves = 0x0L;
 
         int[] indices = Util.positionToIndexCoords(position);
         int currentRank = indices[0];
         int currentFile = indices[1];
 
-        App.getConsole().debug("working with position/rank/file: " + position + " " + currentRank + " " + currentFile);
-
-
+        App.getConsole().debug("computing raw moves for '" + symbol + "', rank: " + currentRank + ", file: " + currentFile);
 
         switch (this) {
-            case PAWN:
-                if ((position & RANK_FIRST << 8) != 0L) {
-                    if (gameState.getPiece (position << 8) == null)
-                        moves |= position << 16;
-                }
+
+            case PAWN -> {
                 moves |= position << 8;
+                if ((position >>> 8 & RANK_FIRST) != 0)
+                    moves |= position << 16;
 
-                moves &= ~gameState.getBitBoardAllPieces();
+            } case PAWN_B -> {
+                moves |= position >>> 8;
+                if ((position << 8 & RANK_LAST) != 0)
+                    moves |= position >>> 16;
 
-                long topLeftPosition = position << 7;
-                long topRightPosition = position << 9;
+            } case KNIGHT, KNIGHT_B, KING, KING_B -> {
+                long preMaskC3 = 0L;
 
-                if ((position & FILE_FIRST) != 0) topLeftPosition = 0L;
-                if ((position & FILE_LAST) != 0) topRightPosition = 0L;
+                // movement mask if piece located on C3
+                if (this == KNIGHT || this == KNIGHT_B) preMaskC3 = 0x0000000A1100110AL;
+                else preMaskC3 = 0x000000000E0A0E00L;
 
-                Piece topLeft = gameState.getPiece(topLeftPosition);
-                Piece topRight = gameState.getPiece(topRightPosition);
+                // shift rank
+                int offsetRank = currentRank - 2;
 
+                if (offsetRank >= 0) preMaskC3 <<= offsetRank * 8;
+                else preMaskC3 >>>= -offsetRank * 8;
 
+                //shift file
+                int offsetFile = currentFile - 2;
+                if (offsetFile >= 0) preMaskC3 <<= offsetFile;
+                else preMaskC3 >>>= -offsetFile;
 
-                if (gameState.getEnPassantPosition() == topLeftPosition || topLeft != null && topLeft.getType().isWhite != isWhite) moves |= topLeftPosition;
-                if (gameState.getEnPassantPosition() == topRightPosition || topRight != null && topRight.getType().isWhite != isWhite) moves |= topRightPosition;
+                // cut left side overflows
+                if (currentFile >= 6) preMaskC3 &= ~(FILE_FIRST | FILE_FIRST << 1);
+                // cut right side overflows
+                else if (currentFile <= 1) preMaskC3 &= ~(FILE_LAST | FILE_LAST >>> 1);
 
-                break;
+                moves |= preMaskC3;
 
-            case PAWN_B:
-                if ((position & RANK_FIRST << (8 * 6)) != 0) {
-                    if (gameState.getPiece (position >>> 8) == null)
-                        moves |= position >>> 16;
-                }
-                moves |= position >> 8;
-
-                moves &= ~gameState.getBitBoardAllPieces();
-
-                long bottomLeftPosition = position >>> 9;
-                long bottomRightPosition = position >>> 7;
-
-                if ((position & FILE_FIRST) != 0) bottomLeftPosition = 0L;
-                if ((position & FILE_LAST) != 0) bottomRightPosition = 0L;
-
-                Piece bottomLeft = gameState.getPiece(bottomLeftPosition);
-                Piece bottomRight = gameState.getPiece(bottomRightPosition);
-
-                if (gameState.getEnPassantPosition() == bottomLeftPosition || bottomLeft != null && bottomLeft.getType().isWhite != isWhite) moves |= position >> 9;
-                if (gameState.getEnPassantPosition() == bottomRightPosition || bottomRight != null && bottomRight.getType().isWhite != isWhite) moves |= position >> 7;
-
-
-
-                break;
-
-            case KING, KING_B:
-                if ((position & RANK_FIRST) == 0) {
-                    moves |= position >>> 7;
-                    moves |= position >>> 8;
-                    moves |= position >>> 9;
-                }
-                if ((position & RANK_LAST) == 0) {
-                    moves |= position << 7;
-                    moves |= position << 8;
-                    moves |= position << 9;
-                }
-                if ((position & FILE_FIRST) == 0) {
-                    moves |= position << 7;
-                    moves |= position >>> 1;
-                    moves |= position >>> 9;
-                }
-                if ((position & FILE_LAST) == 0) {
-                    moves |= position >>> 7;
-                    moves |= position << 1;
-                    moves |= position << 9;
-                }
-
-                if (gameState.isCastleWhiteQueen() && gameState.isTurnWhite()) {
-                    long castleMask = 0xCL;
-                    if ((castleMask & gameState.getBitBoardAllPieces()) == 0) {
-                        moves |= position >>> 2;
-                    }
-                } else if (gameState.isCastleWhiteKing() && gameState.isTurnWhite()) {
-                    long castleMask = 0x60L;
-                    if ((castleMask & gameState.getBitBoardAllPieces()) == 0) {
-                        moves |= position << 2;
-                    }
-                } else if (gameState.isCastleBlackQueen() && !gameState.isTurnWhite()) {
-                    long castleMask = 0xC00000000000000L;
-                    if ((castleMask & gameState.getBitBoardAllPieces()) == 0) {
-                        moves |= position >>> 2;
-                    }
-                } else if (gameState.isCastleBlackKing() && !gameState.isTurnWhite()) {
-                    long castleMask = 0x6000000000000000L;
-                    if ((castleMask & gameState.getBitBoardAllPieces()) == 0) {
-                        moves |= position << 2;
-                    }
-                }
-
-                break;
-
-            case QUEEN, QUEEN_B:
-                moves |= PieceType.ROOK.getRawMoves(position, gameState);
-                moves |= PieceType.BISHOP.getRawMoves(position, gameState);
-                break;
-
-            case ROOK, ROOK_B:
+            } case ROOK, ROOK_B -> {
                 moves |= RANK_FIRST << currentRank * 8;
                 moves |= FILE_FIRST << currentFile;
-                break;
 
-            case BISHOP, BISHOP_B:
+            } case BISHOP, BISHOP_B -> {
+                long preDiagonalA1 = 0x8040201008040201L;
+                long preDiagonalH1 = 0x0102040810204080L;
+                int offsetA1 = currentFile - currentRank;
+                int offsetH1 = currentFile + currentRank - 7;
 
-                int leftMove = currentFile - currentRank;
-                int bottomMove = 8 * ((currentFile + currentRank) - 7);
-
-                long preDiagonalA1;
-                long preDiagonalH1;
-
-                // put the diagonals on the current position
-                // you can't really shift by negative values, so if/else-if is required
-                if (leftMove < 0) preDiagonalA1 = DIAGONAL_A1 >>> -leftMove;
-                else preDiagonalA1 = DIAGONAL_A1 << leftMove;
-                if (bottomMove < 0)  preDiagonalH1 = DIAGONAL_H1 >>> -bottomMove;
-                else preDiagonalH1 = DIAGONAL_H1 << bottomMove;
-
-                // cut the diagonals that wrapped around the board
-                if (leftMove < 0) {
-                    for (int i = 0; i < -leftMove; i++) {
-                        preDiagonalA1 &= ~(FILE_LAST >>> i);
-                    }
-                } else {
-                    for (int i = 0; i < leftMove; i++) {
-                        preDiagonalA1 &= ~(FILE_FIRST << i);
-                    }
-                }
-                if (bottomMove < 0) {
-                    for (int i = 0; i < -bottomMove; i++) {
-                        preDiagonalH1 &= ~(FILE_LAST >>> (i * 8));
-                    }
-                } else {
-                    for (int i = 0; i < bottomMove; i++) {
-                        preDiagonalH1 &= ~(FILE_FIRST << (i * 8));
-                    }
+                // shift diagonals and cut top or bottom ranks if necessary
+                if (offsetA1 > 0) {
+                    preDiagonalA1 <<= 8 * offsetA1 + offsetA1;
+                    preDiagonalA1 >>>= 8 * offsetA1;
+                } else if (offsetA1 < 0) {
+                    preDiagonalA1 >>>= 8 * -offsetA1 - offsetA1;
+                    preDiagonalA1 <<= 8 * -offsetA1;
                 }
 
-                // moves are ready
+                if (offsetH1 > 0) {
+                    preDiagonalH1 >>>= 8 * offsetH1 - offsetH1 + 1;
+                    preDiagonalH1 <<= 8 * offsetH1 + 1;
+                } else if (offsetH1 < 0) {
+                    preDiagonalH1 <<= 8 * -offsetH1 + offsetH1 + 1;
+                    preDiagonalH1 >>>= 8 * -offsetH1 + 1;
+                }
+
                 moves |= preDiagonalA1;
                 moves |= preDiagonalH1;
-                break;
 
-            case KNIGHT, KNIGHT_B:
-                // knight mask is based on c3
-                int offsetRank = currentRank - 2;
-                int offsetFile = currentFile - 2;
-
-                int offset = offsetFile + offsetRank * 8;
-                long preMask;
-
-                // put knight mask on current position
-                if (offset < 0) preMask = KNIGHT_C3 >>> -offset;
-                else preMask = KNIGHT_C3 << offset;
-
-                // cut legal moves, wrapped around the board
-                if (offsetFile < 0) {
-                    preMask &= ~(FILE_LAST | FILE_LAST >>> 1); // cutting files G and H
-                } else if (offsetFile > 3) {
-                    preMask &= ~(FILE_FIRST | FILE_FIRST << 1); // cutting files A and B
-                }
-
-                moves |= preMask;
-                break;
+            } case QUEEN, QUEEN_B -> {
+                moves |= PieceType.BISHOP.getRawMoves(position);
+                moves |= PieceType.ROOK.getRawMoves(position);
+            }
         }
+
         return (moves & ~position);
     }
 }

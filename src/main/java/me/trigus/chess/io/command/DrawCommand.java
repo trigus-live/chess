@@ -30,7 +30,7 @@ public class DrawCommand extends AbstractCommand {
                     return true;
                 }
 
-                highlightMask = piece.getType ().getRawMoves (position, App.getEngine ().getGameState ());
+                highlightMask = piece.getType ().getRawMoves (position);
             }
         }
 
