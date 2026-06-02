@@ -241,13 +241,13 @@ public class GameState {
     public long getBitboardPieces (boolean isWhite) {
         long board = 0x0L;
         for (Piece piece : piecesList) {
-            if (!piece.getPieceType().isWhite) board = board | piece.getPosition ();
+            if (piece.getPieceType().isWhite == isWhite) board = board | piece.getPosition ();
         }
 
         return board;
     }
     public long getBitBoardAllPieces () {
-        return  getBitboardWhitePieces() | getBitboardBlackPieces();
+        return  getBitboardPieces(true) | getBitboardPieces(false);
     }
 
 
