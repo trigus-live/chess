@@ -19,6 +19,30 @@ public class Piece {
         long rawMoves = pieceType.getRawMoves(position);
         long bitmaskAllPieces = gameState.getBitBoardAllPieces();
 
+        // castle
+        long castleRelevantSquares = bitmaskAllPieces & bitmaskEnemyAttackSquares;
+        if (pieceType == PieceType.KING && ((position & bitmaskEnemyAttackSquares) == 0)) {
+            if (gameState.isCastleWhiteQueen()) {
+                if ((Bitmask.castle(true, true).mask() & castleRelevantSquares) == 0)
+                    rawMoves |= position >>> 2;
+            }
+            if (gameState.isCastleWhiteKing()) {
+                if ((Bitmask.castle(true, false).mask() & castleRelevantSquares) == 0)
+                    rawMoves |= position << 2;
+            }
+        } else if (pieceType == PieceType.KING_B && ((position & bitmaskEnemyAttackSquares) == 0)) {
+            if (gameState.isCastleBlackQueen()) {
+                if ((Bitmask.castle(false, true).mask() & castleRelevantSquares) == 0)
+                    rawMoves |= position >>> 2;
+            }
+            if (gameState.isCastleBlackKing()) {
+                if ((Bitmask.castle(false, false).mask() & castleRelevantSquares) == 0)
+                    rawMoves |= position << 2;
+            }
+        }
+
+
+        // pawns
         if (pieceType == PieceType.PAWN || pieceType == PieceType.PAWN_B) {
             // pawns can't capture pieces directly
             rawMoves &= ~bitmaskAllPieces;
