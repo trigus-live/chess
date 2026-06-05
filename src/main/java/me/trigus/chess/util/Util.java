@@ -80,4 +80,28 @@ public class Util {
         return String.valueOf ((char) ('a' + indices[1])) +
                 (char) ('1' + indices[0]);
     }
+
+    /**
+     * Masks the least significant bit of a given pattern
+     * @param bits the pattern to be used
+     * @return long with only the least significant bit of the source pattern set to 1
+     */
+    public static long getLeastSignificantBit (long bits) {
+        return bits & -bits;
+    }
+    
+    /**
+     * Masks the most significant bit of a given pattern
+     * @param bits the pattern to be used
+     * @return long with only the most significant bit of the source pattern set to 1
+     */
+    public static long getMostSignificantBit (long bits) {
+        bits |= bits >>> 1;
+        bits |= bits >>> 2;
+        bits |= bits >>> 4;
+        bits |= bits >>> 8;
+        bits |= bits >>> 16;
+        bits |= bits >>> 32;
+        return bits - (bits >>> 1);
+    }
 }
