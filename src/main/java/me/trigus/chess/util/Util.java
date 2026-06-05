@@ -84,18 +84,20 @@ public class Util {
     /**
      * Masks the least significant bit of a given pattern
      * @param bits the pattern to be used
-     * @return long with only the least significant bit of the source pattern set to 1
+     * @return long with only the least significant bit of the source pattern set to 1. Returns 0 if the source pattern is 0.
      */
     public static long getLeastSignificantBit (long bits) {
+        if (bits == 0) return 0L;
         return bits & -bits;
     }
     
     /**
      * Masks the most significant bit of a given pattern
      * @param bits the pattern to be used
-     * @return long with only the most significant bit of the source pattern set to 1
+     * @return long with only the most significant bit of the source pattern set to 1. Returns 0 if the source pattern is 0.
      */
     public static long getMostSignificantBit (long bits) {
+        if (bits == 0) return 0L;
         bits |= bits >>> 1;
         bits |= bits >>> 2;
         bits |= bits >>> 4;
