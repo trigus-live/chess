@@ -17,7 +17,13 @@ public class Piece {
 
     public long getLegalMoves (GameState gameState) {
         long rawMoves = pieceType.getRawMoves(position);
-        long bitmaskAllPieces = gameState.getBitBoardAllPieces();
+        long bitmaskAllPieces = gameState.getBitmaskAllPieces();
+        long bitmaskEnemyAttackSquares = gameState.getBitmaskAttackingSquares(!pieceType.isWhite);
+
+        // Knight and King Moves, remove capturing own pieces
+        if (pieceType == PieceType.KNIGHT || pieceType == PieceType.KNIGHT_B || pieceType == PieceType.KING || pieceType == PieceType.KING_B) {
+            rawMoves &= ~gameState.getBitmaskPieces(pieceType.isWhite);
+        }
 
         // castle
         long castleRelevantSquares = bitmaskAllPieces & bitmaskEnemyAttackSquares;
