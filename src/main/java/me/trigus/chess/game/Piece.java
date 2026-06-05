@@ -78,7 +78,7 @@ public class Piece {
             if ((position & Bitmask.file(0).mask()) != 0x0L) pawnCaptureMask &= ~Bitmask.file(7).mask();
             if ((position & Bitmask.file(7).mask()) != 0x0L) pawnCaptureMask &= ~Bitmask.file(0).mask();
 
-            rawMoves |= pawnCaptureMask & (gameState.getBitboardPieces(!getPieceType().isWhite) | gameState.getEnPassantPosition());
+            rawMoves |= pawnCaptureMask & (gameState.getBitmaskPieces(!getPieceType().isWhite) | gameState.getEnPassantPosition());
         }
 
 
