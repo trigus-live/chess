@@ -5,25 +5,27 @@ import me.trigus.chess.util.Bitmask;
 import me.trigus.chess.util.Util;
 
 public enum PieceType {
-    PAWN ('P', true),
-    PAWN_B ('p', false),
-    KING ('K', true),
-    KING_B ('k', false),
-    QUEEN ('Q', true),
-    QUEEN_B ('q', false),
-    ROOK ('R', true),
-    ROOK_B ('r', false),
-    BISHOP ('B', true),
-    BISHOP_B ('b', false),
-    KNIGHT ('N', true),
-    KNIGHT_B ('n', false);
+    PAWN ('P', true, false),
+    PAWN_B ('p', false, false),
+    KING ('K', true, false),
+    KING_B ('k', false, false),
+    QUEEN ('Q', true, true),
+    QUEEN_B ('q', false, true),
+    ROOK ('R', true, true),
+    ROOK_B ('r', false, true),
+    BISHOP ('B', true, true),
+    BISHOP_B ('b', false, true),
+    KNIGHT ('N', true, false),
+    KNIGHT_B ('n', false, false);
 
     public final char symbol;
     public final boolean isWhite;
+    public final boolean isSlidingPiece;
 
-    PieceType(char symbol, boolean isWhite) {
+    PieceType(char symbol, boolean isWhite,  boolean isSlidingPiece) {
         this.symbol = symbol;
         this.isWhite = isWhite;
+        this.isSlidingPiece = isSlidingPiece;
     }
 
     public static PieceType fromSymbol (char symbol) {
