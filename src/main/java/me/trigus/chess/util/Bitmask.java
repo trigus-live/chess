@@ -59,4 +59,11 @@ public record Bitmask (long mask) {
         return new Bitmask(mask);
     }
 
+    public static Bitmask castle (boolean isWhite, boolean castleQueen) {
+        if (isWhite && castleQueen) return new Bitmask(0x000000000000000EL);
+        if (isWhite) return new Bitmask(0x00000000000060L);
+        if (castleQueen) return new Bitmask(0x0E00000000000000L);
+        return new Bitmask(0x6000000000000000L);
+    }
+
 }
