@@ -102,8 +102,6 @@ public enum PieceType {
                 moves |= Bitmask.file(currentFile).mask();
 
             } case BISHOP, BISHOP_B -> {
-                //long preDiagonalA1 = 0x8040201008040201L;
-                //long preDiagonalH1 = 0x0102040810204080L;
                 int offsetA1 = currentFile - currentRank;
                 int offsetH1 = currentFile + currentRank - 7;
 
