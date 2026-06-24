@@ -1,6 +1,7 @@
 package me.trigus.chess.game;
 
 import me.trigus.chess.util.Bitmask;
+import me.trigus.chess.util.Util;
 
 public class Piece {
 
@@ -81,7 +82,42 @@ public class Piece {
             rawMoves |= pawnCaptureMask & (gameState.getBitmaskPieces(!getPieceType().isWhite) | gameState.getEnPassantPosition());
         }
 
+        if (pieceType.isSlidingPiece) {
+            long occupiedSquares = rawMoves & bitmaskAllPieces;
+            long lowerOccupiedSquares = occupiedSquares & (position - 1);
+            long higherOccupiedSquares = ~lowerOccupiedSquares & ~position;
 
+            int[] indexCoords = Util.positionToIndexCoords(position);
+
+            long invalidMovesMask = 0L;
+
+            if (pieceType != PieceType.BISHOP && pieceType != PieceType.BISHOP_B) {
+                long rankMask = Bitmask.rank(indexCoords[0]).mask();
+                long fileMask =  Bitmask.file(indexCoords[1]).mask();
+
+                long lowerPartRank = Util.getMostSignificantBit(rankMask & lowerOccupiedSquares);
+                if (lowerPartRank != 0L)
+                    invalidMovesMask |= (lowerPartRank - 1) & rankMask;
+
+
+                long higherPartRank = Util.getLeastSignificantBit(rankMask & higherOccupiedSquares);
+                invalidMovesMask |= (-higherPartRank - higherPartRank) & ~rankMask;
+
+                long lowerPartFile = Util.getMostSignificantBit(fileMask & lowerOccupiedSquares);
+                invalidMovesMask |= (lowerPartFile - 1) & fileMask;
+
+                long higherPartFile = Util.getLeastSignificantBit(fileMask & higherOccupiedSquares);
+                invalidMovesMask |= (-higherPartFile - higherPartFile) & fileMask;
+            }
+
+            if (pieceType != PieceType.ROOK && pieceType != PieceType.ROOK_B) {
+
+            }
+
+            rawMoves &= ~invalidMovesMask;
+        }
+
+        rawMoves &= ~ gameState.getBitmaskPieces(pieceType.isWhite);
 
         return rawMoves;
     }
